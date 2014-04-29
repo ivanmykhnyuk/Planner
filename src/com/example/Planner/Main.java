@@ -12,6 +12,11 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+
+import java.util.Calendar;
+import java.util.HashMap;
 
 public class Main extends FragmentActivity {
     static final int PAGE_COUNT = 7;
@@ -23,6 +28,14 @@ public class Main extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        Button addTaskButton = (Button) findViewById(R.id.addTaskButton);
+        addTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
 
         pager = (ViewPager) findViewById(R.id.pager);
         pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), this);
@@ -43,6 +56,20 @@ public class Main extends FragmentActivity {
             public void onPageScrollStateChanged(int state) {
             }
         });
+
+        HashMap<Integer, Integer> map = new HashMap<Integer, Integer>(7);
+
+        map.put(Calendar.MONDAY, 0);
+        map.put(Calendar.TUESDAY, 1);
+        map.put(Calendar.WEDNESDAY, 2);
+        map.put(Calendar.THURSDAY, 3);
+        map.put(Calendar.FRIDAY, 4);
+        map.put(Calendar.SATURDAY, 5);
+        map.put(Calendar.SUNDAY, 6);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        pager.setCurrentItem(map.get(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)));
     }
 
     private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
