@@ -14,6 +14,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -29,13 +30,7 @@ public class Main extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        Button addTaskButton = (Button) findViewById(R.id.addTaskButton);
-        addTaskButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-        });
+
 
         pager = (ViewPager) findViewById(R.id.pager);
         pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), this);

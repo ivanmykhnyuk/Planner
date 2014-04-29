@@ -1,5 +1,6 @@
 package com.example.Planner;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import android.graphics.Color;
@@ -8,6 +9,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class PageFragment extends Fragment {
@@ -38,6 +41,24 @@ public class PageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment, null);
+
+        ListView lvMain = (ListView) view.findViewById(R.id.lvMain);
+
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(view.getContext(),
+                R.layout.message_history_entry, R.id.task, new ArrayList<String>());
+
+
+        // присваиваем адаптер списку
+        lvMain.setAdapter(adapter);
+
+        adapter.add("dkdfkdfkdf");
+        adapter.add("dkdfkdfkdf");
+        adapter.add("dkdfkdfkdf");
+        adapter.add("dkdfkdfkdf");
+        adapter.add("dkdfkdfkdf");
+        adapter.add("dkdfkdfkdf");
+
         return view;
     }
 }
