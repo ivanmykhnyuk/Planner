@@ -1,7 +1,5 @@
 package com.example.Planner;
 
-import android.app.Activity;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,10 +9,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ListView;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -77,7 +71,7 @@ public class Main extends FragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return PageFragment.newInstance(position);
+            return new PageFragment();
         }
 
         @Override
