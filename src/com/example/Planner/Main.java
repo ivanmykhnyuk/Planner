@@ -9,6 +9,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.SparseArray;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -17,12 +22,27 @@ public class Main extends FragmentActivity {
     static final int PAGE_COUNT = 7;
 
     ViewPager pager;
-    PagerAdapter pagerAdapter;
+    MyFragmentPagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        Button addTaskButton = (Button) findViewById(R.id.addTaskButton);
+        addTaskButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Fragment fragment = pagerAdapter.getRegisteredFragment(pager.getCurrentItem());
+                LinearLayout base = (LinearLayout) fragment.getView().findViewById(R.id.base);
+
+                LinearLayout newEnry = (LinearLayout) getLayoutInflater().inflate(R.layout.entry, null);
+
+                base.addView(newEnry);
+            }
+        });
+
 
 
 
@@ -63,6 +83,7 @@ public class Main extends FragmentActivity {
 
     private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
         private Context context;
+        SparseArray<Fragment> registeredFragments = new SparseArray<Fragment>();
 
         public MyFragmentPagerAdapter(FragmentManager fm, Context context) {
             super(fm);
@@ -106,6 +127,23 @@ public class Main extends FragmentActivity {
                     break;
             }
             return title;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            PageFragment fragment = (PageFragment) super.instantiateItem(container, position);
+            registeredFragments.put(position, fragment);
+            return fragment;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            registeredFragments.remove(position);
+            super.destroyItem(container, position, object);
+        }
+
+        public Fragment getRegisteredFragment(int position) {
+            return registeredFragments.get(position);
         }
 
     }

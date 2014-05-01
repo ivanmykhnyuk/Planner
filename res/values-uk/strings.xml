@@ -7,4 +7,7 @@
     <string name="friday">Пятниця</string>
     <string name="saturday">Субота</string>
     <string name="sunday">Неділя</string>
+
+    <string name="addTask">Додати завдання</string>
+    <string name="clearList">Очистити список</string>
 </resources>
