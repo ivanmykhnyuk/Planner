@@ -9,7 +9,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/taskPriority"
-            android:layout_gravity="center_horizontal|top"/>
+            android:layout_gravity="center_horizontal|top"
+            android:entries="@array/priority"/>
     <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
