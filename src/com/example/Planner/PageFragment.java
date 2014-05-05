@@ -3,6 +3,7 @@ package com.example.Planner;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,7 +62,6 @@ public class PageFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 taskDescription.setEnabled(!isChecked);
                 taskPrioritySetter.setEnabled(!isChecked);
-
             }
         });
 
@@ -79,14 +79,12 @@ public class PageFragment extends Fragment {
                 LinearLayout entry = (LinearLayout) base.getChildAt(i).findViewById(R.id.entry);
                 int pr1 = ((Spinner) entry.findViewById(R.id.taskPriority)).getSelectedItemPosition() + 1;
 
-                LinearLayout entryNext = (LinearLayout) base.getChildAt(i).findViewById(R.id.entry);
-                int pr2 = ((Spinner) entry.findViewById(R.id.taskPriority)).getSelectedItemPosition() + 1;
+                LinearLayout entryNext = (LinearLayout) base.getChildAt(i + 1).findViewById(R.id.entry);
+                int pr2 = ((Spinner) entryNext.findViewById(R.id.taskPriority)).getSelectedItemPosition() + 1;
                 if (pr1 < pr2) {
-                    base.removeViewAt(i);
-                    base.removeViewAt(i + 1);
+                    base.removeView(entry);
+                    base.addView(entry, i - 1);
 
-                    base.addView(entryNext, i);
-                    base.addView(entry, i + 1);
                     flag = true;
                 }
             }
