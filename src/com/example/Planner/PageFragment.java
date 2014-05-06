@@ -2,6 +2,7 @@ package com.example.Planner;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,11 @@ public class PageFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    int mPos;
+    void setPos(int pos) {
+        mPos = pos;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment, null);
@@ -28,7 +34,7 @@ public class PageFragment extends Fragment {
 
 
         Main activity = (Main) getActivity();
-        ArrayList<Object[]> dkkdfkdf = activity.getTasks().get(activity.getPager().getCurrentItem());
+        ArrayList<Object[]> dkkdfkdf = activity.getTasks().get(mPos);
         if (dkkdfkdf != null) {
             for (Object[] taskInfo : dkkdfkdf) {
                 LinearLayout newEnry = (LinearLayout) inflater.inflate(R.layout.entry, null);
@@ -45,7 +51,6 @@ public class PageFragment extends Fragment {
 
                 base.addView(newEnry);
             }
-    }
 
     return view;
 }
@@ -54,6 +59,9 @@ public class PageFragment extends Fragment {
         super.onDestroyView();
 
         LinearLayout base = (LinearLayout) getView().findViewById(R.id.base);
+
+        ((Main) getActivity()).getTasks().remove(mPos);
+
         for (int i = 0; i < base.getChildCount(); ++i) {
             LinearLayout child = (LinearLayout) base.getChildAt(i);
             Spinner prioritySetter = (Spinner) child.findViewById(R.id.prioritySetter);
@@ -65,16 +73,16 @@ public class PageFragment extends Fragment {
             taskInfo[1] = taskDescription.getText().toString();
             taskInfo[2] = taskCompleteness.isChecked();
 
-            int id = ((Main) getActivity()).getPager().getCurrentItem();
+
 
             HashMap<Integer, ArrayList<Object[]>> tasks = ((Main) getActivity()).getTasks();
-            if (tasks.containsKey(id)) {
-                tasks.get(id).add(taskInfo);
+            if (tasks.containsKey(mPos)) {
+                tasks.get(mPos).add(taskInfo);
             } else {
                 ArrayList<Object[]> list = new ArrayList<Object[]>();
                 list.add(taskInfo);
 
-                tasks.put(id, list);
+                tasks.put(mPos, list);
             }
         }
 

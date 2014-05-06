@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.View;
@@ -98,7 +99,9 @@ public class Main extends FragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return new PageFragment();
+            PageFragment pageFragment = new PageFragment();
+            pageFragment.setPos(position);
+            return pageFragment;
         }
 
         @Override
