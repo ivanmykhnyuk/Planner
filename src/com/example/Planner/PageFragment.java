@@ -1,15 +1,18 @@
 package com.example.Planner;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.*;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PageFragment extends Fragment {
     @Override
@@ -21,73 +24,59 @@ public class PageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment, null);
 
-        final LinearLayout base = (LinearLayout) view.findViewById(R.id.base);
+        LinearLayout base = (LinearLayout) view.findViewById(R.id.base);
 
 
-        View v = inflater.inflate(R.layout.entry, null);
-        base.addView(v);
+        Main activity = (Main) getActivity();
+        ArrayList<Object[]> dkkdfkdf = activity.getTasks().get(activity.getPager().getCurrentItem());
+        if (dkkdfkdf != null) {
+            for (Object[] taskInfo : dkkdfkdf) {
+                LinearLayout newEnry = (LinearLayout) inflater.inflate(R.layout.entry, null);
+                activity.initEntry(newEnry, base);
 
 
-        final EditText taskDescription = (EditText) v.findViewById(R.id.taskDesctiption);
-        taskDescription.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                Spinner prioritySetter = (Spinner) newEnry.findViewById(R.id.prioritySetter);
+                EditText taskDescription = (EditText) newEnry.findViewById(R.id.taskDesctiption);
+                CheckBox taskCompleteness = (CheckBox) newEnry.findViewById(R.id.taskCompleteness);
 
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                    // hide virtual keyboard
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(taskDescription.getWindowToken(), 0);
-                    return true;
-                }
-                return false;
+                prioritySetter.setSelection((Integer) taskInfo[0]);
+                taskDescription.setText((String) taskInfo[1]);
+                taskCompleteness.setChecked((Boolean) taskInfo[2]);
+
+                base.addView(newEnry);
             }
-        });
-
-
-        final Spinner taskPrioritySetter = (Spinner) v.findViewById(R.id.taskPriority);
-        taskPrioritySetter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                pullMorePriorityTasksToTop(base);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
-        CheckBox taskCompleteness = (CheckBox) v.findViewById(R.id.taskCompleteness);
-        taskCompleteness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                taskDescription.setEnabled(!isChecked);
-                taskPrioritySetter.setEnabled(!isChecked);
-            }
-        });
-
-        return view;
     }
 
-    private void pullMorePriorityTasksToTop(LinearLayout base) {
-        boolean flag = true;   // set flag to true to begin first pass
+    return view;
+}
 
+    public void onDestroyView() {
+        super.onDestroyView();
 
-        while (flag) {
-            flag = false;    //set flag to false awaiting a possible swap
+        LinearLayout base = (LinearLayout) getView().findViewById(R.id.base);
+        for (int i = 0; i < base.getChildCount(); ++i) {
+            LinearLayout child = (LinearLayout) base.getChildAt(i);
+            Spinner prioritySetter = (Spinner) child.findViewById(R.id.prioritySetter);
+            EditText taskDescription = (EditText) child.findViewById(R.id.taskDesctiption);
+            CheckBox taskCompleteness = (CheckBox) child.findViewById(R.id.taskCompleteness);
 
-            for (int i = 0; i < base.getChildCount() - 1; ++i) {
-                LinearLayout entry = (LinearLayout) base.getChildAt(i).findViewById(R.id.entry);
-                int pr1 = ((Spinner) entry.findViewById(R.id.taskPriority)).getSelectedItemPosition() + 1;
+            Object[] taskInfo = new Object[3];
+            taskInfo[0] = prioritySetter.getSelectedItemPosition();
+            taskInfo[1] = taskDescription.getText().toString();
+            taskInfo[2] = taskCompleteness.isChecked();
 
-                LinearLayout entryNext = (LinearLayout) base.getChildAt(i + 1).findViewById(R.id.entry);
-                int pr2 = ((Spinner) entryNext.findViewById(R.id.taskPriority)).getSelectedItemPosition() + 1;
-                if (pr1 < pr2) {
-                    base.removeView(entry);
-                    base.addView(entry, i - 1);
+            int id = ((Main) getActivity()).getPager().getCurrentItem();
 
-                    flag = true;
-                }
+            HashMap<Integer, ArrayList<Object[]>> tasks = ((Main) getActivity()).getTasks();
+            if (tasks.containsKey(id)) {
+                tasks.get(id).add(taskInfo);
+            } else {
+                ArrayList<Object[]> list = new ArrayList<Object[]>();
+                list.add(taskInfo);
+
+                tasks.put(id, list);
             }
         }
+
     }
 }

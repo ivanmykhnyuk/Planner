@@ -8,8 +8,8 @@
     <Spinner
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/taskPriority"
-            android:layout_gravity="center_horizontal|top"
+            android:id="@+id/prioritySetter"
+            android:layout_gravity="center_vertical"
             android:entries="@array/priority"/>
     <EditText
             android:layout_width="wrap_content"
@@ -20,6 +20,6 @@
             android:id="@+id/taskCompleteness"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right">
+            android:layout_gravity="center_vertical">
     </CheckBox>
 </LinearLayout>

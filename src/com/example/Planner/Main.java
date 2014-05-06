@@ -6,15 +6,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.SparseArray;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.*;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -23,6 +24,7 @@ public class Main extends FragmentActivity {
 
     ViewPager pager;
     MyFragmentPagerAdapter pagerAdapter;
+    HashMap<Integer, ArrayList<Object[]>> tasks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +37,11 @@ public class Main extends FragmentActivity {
             public void onClick(View v) {
 
                 Fragment fragment = pagerAdapter.getRegisteredFragment(pager.getCurrentItem());
-                LinearLayout base = (LinearLayout) fragment.getView().findViewById(R.id.base);
+                final LinearLayout base = (LinearLayout) fragment.getView().findViewById(R.id.base);
 
                 LinearLayout newEnry = (LinearLayout) getLayoutInflater().inflate(R.layout.entry, null);
+
+                initEntry(newEnry, base);
 
                 base.addView(newEnry);
             }
@@ -79,6 +83,8 @@ public class Main extends FragmentActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         pager.setCurrentItem(map.get(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)));
+
+        tasks = new HashMap<Integer, ArrayList<Object[]>>();
     }
 
     private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
@@ -146,6 +152,78 @@ public class Main extends FragmentActivity {
             return registeredFragments.get(position);
         }
 
+    }
+
+
+
+    HashMap<Integer, ArrayList<Object[]>> getTasks() {
+        return tasks;
+    }
+
+
+    ViewPager getPager() {
+        return pager;
+    }
+
+    private void pullMorePriorityTasksToTop(LinearLayout base) {
+        boolean flag = true;   // set flag to true to begin first pass
+
+
+        while (flag) {
+            flag = false;    //set flag to false awaiting a possible swap
+
+            for (int i = 0; i < base.getChildCount() - 1; ++i) {
+                LinearLayout entry = (LinearLayout) base.getChildAt(i).findViewById(R.id.entry);
+                int pr1 = ((Spinner) entry.findViewById(R.id.prioritySetter)).getSelectedItemPosition() + 1;
+
+                LinearLayout entryNext = (LinearLayout) base.getChildAt(i + 1).findViewById(R.id.entry);
+                int pr2 = ((Spinner) entryNext.findViewById(R.id.prioritySetter)).getSelectedItemPosition() + 1;
+                if (pr1 < pr2) {
+                    base.removeView(entry);
+                    base.addView(entry, i - 1);
+
+                    flag = true;
+                }
+            }
+        }
+    }
+
+    void initEntry(LinearLayout newEnry, final LinearLayout base) {
+        final EditText taskDescription = (EditText) newEnry.findViewById(R.id.taskDesctiption);
+        taskDescription.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    // hide virtual keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(taskDescription.getWindowToken(), 0);
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
+        final Spinner taskPrioritySetter = (Spinner) newEnry.findViewById(R.id.prioritySetter);
+        taskPrioritySetter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                pullMorePriorityTasksToTop(base);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        CheckBox taskCompleteness = (CheckBox) newEnry.findViewById(R.id.taskCompleteness);
+        taskCompleteness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                taskDescription.setEnabled(!isChecked);
+                taskPrioritySetter.setEnabled(!isChecked);
+            }
+        });
     }
 
 }
