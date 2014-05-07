@@ -1,7 +1,10 @@
 package com.example.Planner;
 
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -25,6 +28,8 @@ public class Main extends FragmentActivity {
     ViewPager weekTasks;
     MyFragmentPagerAdapter pagerAdapter;
     HashMap<Integer, ArrayList<Object[]>> tasks;
+
+    DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +71,40 @@ public class Main extends FragmentActivity {
         weekTasks.setCurrentItem(map.get(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)));
 
         tasks = new HashMap<Integer, ArrayList<Object[]>>();
+
+        String dbName = "myDB";
+        dbHelper = new DBHelper(this, dbName);
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+
+
+        Cursor cursor = database.query("mytable", null, null, null, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            int taskDay = cursor.getColumnIndex("taskDay");
+            int taskDescription = cursor.getColumnIndex("taskDescription");
+            int taskCompleteness = cursor.getColumnIndex("taskCompleteness");
+
+            do {
+                Object[] taskDescr = new Object[2];
+                taskDay = cursor.getInt(taskDay);
+                taskDescr[0] = cursor.getString(taskDescription);
+                taskDescr[1] = cursor.getInt(taskCompleteness);
+
+                if (!tasks.containsKey(taskDay)) {
+                    tasks.put(taskDay, new ArrayList<Object[]>());
+                }
+
+                tasks.get(taskDay).add(taskDescr);
+
+
+            } while (cursor.moveToNext());
+
+
+            database.delete("mytable", null, null);
+        }
+
+
+
     }
 
     private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
@@ -138,14 +177,12 @@ public class Main extends FragmentActivity {
     }
 
 
-
     HashMap<Integer, ArrayList<Object[]>> getTasks() {
         return tasks;
     }
 
 
-
-    void initEntry(LinearLayout newEnry, final LinearLayout base) {
+    void initEntry(LinearLayout newEnry) {
         final EditText taskDescription = (EditText) newEnry.findViewById(R.id.taskDesctiption);
         taskDescription.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -177,14 +214,11 @@ public class Main extends FragmentActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.setHeaderTitle("Share Menu.");
         MenuInflater inflater = getMenuInflater();
 
         inflater.inflate(R.menu.ctx_menu, menu);
 
         ctxSelectedView = v;
-
-
     }
 
     @Override
@@ -223,7 +257,7 @@ public class Main extends FragmentActivity {
         switch (item.getItemId()) {
             case R.id.addTaskMenuItem:
                 LinearLayout newTask = (LinearLayout) getLayoutInflater().inflate(R.layout.entry, null);
-                initEntry(newTask, base);
+                initEntry(newTask);
                 base.addView(newTask);
                 return true;
 
@@ -235,5 +269,30 @@ public class Main extends FragmentActivity {
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        pagerAdapter.getRegisteredFragment(weekTasks.getCurrentItem()).onDestroyView();
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+
+        for (Integer key : tasks.keySet()) {
+            ArrayList<Object[]> dayTasks = tasks.get(key);
+            for (Object[] dayTask : dayTasks) {
+                contentValues.put("taskDay", key);
+                contentValues.put("taskDescription", (String) dayTask[0]);
+                contentValues.put("taskCompleteness", (Integer) dayTask[1]);
+
+                db.insert("mytable", null, contentValues);
+                contentValues.clear();
+            }
+        }
+
+        dbHelper.close();
+        super.onDestroy();
     }
 }

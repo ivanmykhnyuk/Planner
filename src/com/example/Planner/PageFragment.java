@@ -39,13 +39,13 @@ public class PageFragment extends Fragment {
         if (dkkdfkdf != null) {
             for (Object[] taskInfo : dkkdfkdf) {
                 LinearLayout newEnry = (LinearLayout) inflater.inflate(R.layout.entry, null);
-                activity.initEntry(newEnry, base);
+                activity.initEntry(newEnry);
 
                 EditText taskDescription = (EditText) newEnry.findViewById(R.id.taskDesctiption);
                 CheckBox taskCompleteness = (CheckBox) newEnry.findViewById(R.id.taskCompleteness);
 
                 taskDescription.setText((String) taskInfo[0]);
-                taskCompleteness.setChecked((Boolean) taskInfo[1]);
+                taskCompleteness.setChecked((Integer) taskInfo[1] == 1 ? true : false);
 
                 base.addView(newEnry);
             }
@@ -68,7 +68,7 @@ public class PageFragment extends Fragment {
 
             Object[] taskInfo = new Object[2];
             taskInfo[0] = taskDescription.getText().toString();
-            taskInfo[1] = taskCompleteness.isChecked();
+            taskInfo[1] = taskCompleteness.isChecked() ? 1 : 0;
 
 
             HashMap<Integer, ArrayList<Object[]>> tasks = ((Main) getActivity()).getTasks();
