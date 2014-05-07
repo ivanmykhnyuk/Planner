@@ -23,13 +23,15 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 public class Main extends FragmentActivity {
-    static final int PAGE_COUNT = 7;
+    final int PAGE_COUNT = 7;
 
     ViewPager weekTasks;
     MyFragmentPagerAdapter pagerAdapter;
-    HashMap<Integer, ArrayList<Object[]>> tasks;
+    HashMap<Integer, ArrayList<TaskInfo>> tasks;
 
     DBHelper dbHelper;
+
+    Dialog prioritySettingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,11 +68,9 @@ public class Main extends FragmentActivity {
         map.put(Calendar.SATURDAY, 5);
         map.put(Calendar.SUNDAY, 6);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setFirstDayOfWeek(Calendar.MONDAY);
         weekTasks.setCurrentItem(map.get(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)));
 
-        tasks = new HashMap<Integer, ArrayList<Object[]>>();
+        tasks = new HashMap<Integer, ArrayList<TaskInfo>>();
 
         String dbName = "myDB";
         dbHelper = new DBHelper(this, dbName);
@@ -85,16 +85,16 @@ public class Main extends FragmentActivity {
             int taskCompleteness = cursor.getColumnIndex("taskCompleteness");
 
             do {
-                Object[] taskDescr = new Object[2];
+                TaskInfo taskInfo = new TaskInfo();
                 taskDay = cursor.getInt(taskDay);
-                taskDescr[0] = cursor.getString(taskDescription);
-                taskDescr[1] = cursor.getInt(taskCompleteness);
+                taskInfo.taskDescription = cursor.getString(taskDescription);
+                taskInfo.taskCompleteness = cursor.getInt(taskCompleteness);
 
                 if (!tasks.containsKey(taskDay)) {
-                    tasks.put(taskDay, new ArrayList<Object[]>());
+                    tasks.put(taskDay, new ArrayList<TaskInfo>());
                 }
 
-                tasks.get(taskDay).add(taskDescr);
+                tasks.get(taskDay).add(taskInfo);
 
 
             } while (cursor.moveToNext());
@@ -103,7 +103,16 @@ public class Main extends FragmentActivity {
             database.delete("mytable", null, null);
         }
 
-
+        prioritySettingDialog = new Dialog(this);
+        prioritySettingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        prioritySettingDialog.setContentView(getLayoutInflater().inflate(R.layout.priority_setter_view, null));
+        Button okButton = (Button) prioritySettingDialog.findViewById(R.id.button_set);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prioritySettingDialog.dismiss();
+            }
+        });
 
     }
 
@@ -177,7 +186,7 @@ public class Main extends FragmentActivity {
     }
 
 
-    HashMap<Integer, ArrayList<Object[]>> getTasks() {
+    HashMap<Integer, ArrayList<TaskInfo>> getTasks() {
         return tasks;
     }
 
@@ -231,10 +240,6 @@ public class Main extends FragmentActivity {
                 base.removeView(ctxSelectedView);
                 return true;
             case R.id.setPriority:
-                View contentView = getLayoutInflater().inflate(R.layout.priority_setter_view, null);
-                Dialog prioritySettingDialog = new Dialog(this);
-                prioritySettingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                prioritySettingDialog.setContentView(contentView);
                 prioritySettingDialog.show();
                 return true;
             default:
@@ -281,11 +286,11 @@ public class Main extends FragmentActivity {
 
 
         for (Integer key : tasks.keySet()) {
-            ArrayList<Object[]> dayTasks = tasks.get(key);
-            for (Object[] dayTask : dayTasks) {
+            ArrayList<TaskInfo> dayTasks = tasks.get(key);
+            for (TaskInfo dayTask : dayTasks) {
                 contentValues.put("taskDay", key);
-                contentValues.put("taskDescription", (String) dayTask[0]);
-                contentValues.put("taskCompleteness", (Integer) dayTask[1]);
+                contentValues.put("taskDescription",  dayTask.taskDescription);
+                contentValues.put("taskCompleteness", dayTask.taskCompleteness);
 
                 db.insert("mytable", null, contentValues);
                 contentValues.clear();
@@ -295,4 +300,8 @@ public class Main extends FragmentActivity {
         dbHelper.close();
         super.onDestroy();
     }
+
+
+
+
 }

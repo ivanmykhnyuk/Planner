@@ -35,17 +35,17 @@ public class PageFragment extends Fragment {
 
 
         Main activity = (Main) getActivity();
-        ArrayList<Object[]> dkkdfkdf = activity.getTasks().get(mPos);
+        ArrayList<TaskInfo> dkkdfkdf = activity.getTasks().get(mPos);
         if (dkkdfkdf != null) {
-            for (Object[] taskInfo : dkkdfkdf) {
+            for (TaskInfo taskInfo : dkkdfkdf) {
                 LinearLayout newEnry = (LinearLayout) inflater.inflate(R.layout.entry, null);
                 activity.initEntry(newEnry);
 
                 EditText taskDescription = (EditText) newEnry.findViewById(R.id.taskDesctiption);
                 CheckBox taskCompleteness = (CheckBox) newEnry.findViewById(R.id.taskCompleteness);
 
-                taskDescription.setText((String) taskInfo[0]);
-                taskCompleteness.setChecked((Integer) taskInfo[1] == 1 ? true : false);
+                taskDescription.setText(taskInfo.taskDescription);
+                taskCompleteness.setChecked(taskInfo.taskCompleteness == 1 ? true : false);
 
                 base.addView(newEnry);
             }
@@ -66,16 +66,16 @@ public class PageFragment extends Fragment {
             EditText taskDescription = (EditText) child.findViewById(R.id.taskDesctiption);
             CheckBox taskCompleteness = (CheckBox) child.findViewById(R.id.taskCompleteness);
 
-            Object[] taskInfo = new Object[2];
-            taskInfo[0] = taskDescription.getText().toString();
-            taskInfo[1] = taskCompleteness.isChecked() ? 1 : 0;
+            TaskInfo taskInfo = new TaskInfo();
+            taskInfo.taskDescription = taskDescription.getText().toString();
+            taskInfo.taskCompleteness = taskCompleteness.isChecked() ? 1 : 0;
 
 
-            HashMap<Integer, ArrayList<Object[]>> tasks = ((Main) getActivity()).getTasks();
+            HashMap<Integer, ArrayList<TaskInfo>> tasks = ((Main) getActivity()).getTasks();
             if (tasks.containsKey(mPos)) {
                 tasks.get(mPos).add(taskInfo);
             } else {
-                ArrayList<Object[]> list = new ArrayList<Object[]>();
+                ArrayList<TaskInfo> list = new ArrayList<TaskInfo>();
                 list.add(taskInfo);
 
                 tasks.put(mPos, list);
