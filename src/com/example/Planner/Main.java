@@ -8,11 +8,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.Log;
 import android.util.SparseArray;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
@@ -23,7 +20,7 @@ import java.util.HashMap;
 public class Main extends FragmentActivity {
     static final int PAGE_COUNT = 7;
 
-    ViewPager pager;
+    ViewPager weekTasks;
     MyFragmentPagerAdapter pagerAdapter;
     HashMap<Integer, ArrayList<Object[]>> tasks;
 
@@ -32,30 +29,11 @@ public class Main extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        Button addTaskButton = (Button) findViewById(R.id.addTaskButton);
-        addTaskButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Fragment fragment = pagerAdapter.getRegisteredFragment(pager.getCurrentItem());
-                final LinearLayout base = (LinearLayout) fragment.getView().findViewById(R.id.base);
-
-                LinearLayout newEnry = (LinearLayout) getLayoutInflater().inflate(R.layout.entry, null);
-
-                initEntry(newEnry, base);
-
-                base.addView(newEnry);
-            }
-        });
-
-
-
-
-        pager = (ViewPager) findViewById(R.id.pager);
+        weekTasks = (ViewPager) findViewById(R.id.pager);
         pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), this);
-        pager.setAdapter(pagerAdapter);
+        weekTasks.setAdapter(pagerAdapter);
 
-        pager.setOnPageChangeListener(new OnPageChangeListener() {
+        weekTasks.setOnPageChangeListener(new OnPageChangeListener() {
 
             @Override
             public void onPageSelected(int position) {
@@ -83,7 +61,7 @@ public class Main extends FragmentActivity {
 
         Calendar calendar = Calendar.getInstance();
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
-        pager.setCurrentItem(map.get(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)));
+        weekTasks.setCurrentItem(map.get(Calendar.getInstance().get(Calendar.DAY_OF_WEEK)));
 
         tasks = new HashMap<Integer, ArrayList<Object[]>>();
     }
@@ -164,10 +142,6 @@ public class Main extends FragmentActivity {
     }
 
 
-    ViewPager getPager() {
-        return pager;
-    }
-
     private void pullMorePriorityTasksToTop(LinearLayout base) {
         boolean flag = true;   // set flag to true to begin first pass
 
@@ -227,6 +201,63 @@ public class Main extends FragmentActivity {
                 taskPrioritySetter.setEnabled(!isChecked);
             }
         });
+
+        registerForContextMenu(newEnry);
     }
 
+
+    private View ctxSelectedView;
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.setHeaderTitle("Share Menu.");
+        MenuInflater inflater = getMenuInflater();
+
+        inflater.inflate(R.menu.ctx_menu, menu);
+
+        ctxSelectedView = v;
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.deleteTask:
+                Fragment fragment = pagerAdapter.getRegisteredFragment(weekTasks.getCurrentItem());
+                LinearLayout base = (LinearLayout) fragment.getView().findViewById(R.id.base);
+                base.removeView(ctxSelectedView);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Fragment fragment = pagerAdapter.getRegisteredFragment(weekTasks.getCurrentItem());
+        final LinearLayout base = (LinearLayout) fragment.getView().findViewById(R.id.base);
+        switch (item.getItemId()) {
+            case R.id.addTask:
+                LinearLayout newTask = (LinearLayout) getLayoutInflater().inflate(R.layout.entry, null);
+                initEntry(newTask, base);
+                base.addView(newTask);
+                return true;
+
+            case R.id.clearTaskList:
+                base.removeAllViews();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
 }

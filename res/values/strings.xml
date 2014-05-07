@@ -10,7 +10,9 @@
     <string name="sunday">Sunday</string>
 
     <string name="addTask">Add task</string>
-    <string name="clearList">Clear list</string>
+    <string name="clearTaskList">Clear list</string>
+
+    <string name="deleteTask">Delete task</string>
 
     <string-array name="priority">
         <item>1</item>

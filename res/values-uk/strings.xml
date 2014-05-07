@@ -9,7 +9,9 @@
     <string name="sunday">Неділя</string>
 
     <string name="addTask">Додати завдання</string>
-    <string name="clearList">Очистити список</string>
+    <string name="clearTaskList">Очистити список</string>
+
+    <string name="deleteTask">Видалити завдання</string>
 
     <string-array name="priority">
         <item>1</item>

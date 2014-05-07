@@ -22,6 +22,7 @@ public class PageFragment extends Fragment {
     }
 
     int mPos;
+
     void setPos(int pos) {
         mPos = pos;
     }
@@ -51,9 +52,10 @@ public class PageFragment extends Fragment {
 
                 base.addView(newEnry);
             }
+        }
 
-    return view;
-}
+        return view;
+    }
 
     public void onDestroyView() {
         super.onDestroyView();
@@ -72,7 +74,6 @@ public class PageFragment extends Fragment {
             taskInfo[0] = prioritySetter.getSelectedItemPosition();
             taskInfo[1] = taskDescription.getText().toString();
             taskInfo[2] = taskCompleteness.isChecked();
-
 
 
             HashMap<Integer, ArrayList<Object[]>> tasks = ((Main) getActivity()).getTasks();
