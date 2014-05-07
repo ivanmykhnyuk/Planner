@@ -41,14 +41,11 @@ public class PageFragment extends Fragment {
                 LinearLayout newEnry = (LinearLayout) inflater.inflate(R.layout.entry, null);
                 activity.initEntry(newEnry, base);
 
-
-                Spinner prioritySetter = (Spinner) newEnry.findViewById(R.id.prioritySetter);
                 EditText taskDescription = (EditText) newEnry.findViewById(R.id.taskDesctiption);
                 CheckBox taskCompleteness = (CheckBox) newEnry.findViewById(R.id.taskCompleteness);
 
-                prioritySetter.setSelection((Integer) taskInfo[0]);
-                taskDescription.setText((String) taskInfo[1]);
-                taskCompleteness.setChecked((Boolean) taskInfo[2]);
+                taskDescription.setText((String) taskInfo[0]);
+                taskCompleteness.setChecked((Boolean) taskInfo[1]);
 
                 base.addView(newEnry);
             }
@@ -66,14 +63,12 @@ public class PageFragment extends Fragment {
 
         for (int i = 0; i < base.getChildCount(); ++i) {
             LinearLayout child = (LinearLayout) base.getChildAt(i);
-            Spinner prioritySetter = (Spinner) child.findViewById(R.id.prioritySetter);
             EditText taskDescription = (EditText) child.findViewById(R.id.taskDesctiption);
             CheckBox taskCompleteness = (CheckBox) child.findViewById(R.id.taskCompleteness);
 
-            Object[] taskInfo = new Object[3];
-            taskInfo[0] = prioritySetter.getSelectedItemPosition();
-            taskInfo[1] = taskDescription.getText().toString();
-            taskInfo[2] = taskCompleteness.isChecked();
+            Object[] taskInfo = new Object[2];
+            taskInfo[0] = taskDescription.getText().toString();
+            taskInfo[1] = taskCompleteness.isChecked();
 
 
             HashMap<Integer, ArrayList<Object[]>> tasks = ((Main) getActivity()).getTasks();

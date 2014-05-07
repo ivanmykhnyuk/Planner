@@ -1,5 +1,6 @@
 package com.example.Planner;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
@@ -142,28 +144,6 @@ public class Main extends FragmentActivity {
     }
 
 
-    private void pullMorePriorityTasksToTop(LinearLayout base) {
-        boolean flag = true;   // set flag to true to begin first pass
-
-
-        while (flag) {
-            flag = false;    //set flag to false awaiting a possible swap
-
-            for (int i = 0; i < base.getChildCount() - 1; ++i) {
-                LinearLayout entry = (LinearLayout) base.getChildAt(i).findViewById(R.id.entry);
-                int pr1 = ((Spinner) entry.findViewById(R.id.prioritySetter)).getSelectedItemPosition() + 1;
-
-                LinearLayout entryNext = (LinearLayout) base.getChildAt(i + 1).findViewById(R.id.entry);
-                int pr2 = ((Spinner) entryNext.findViewById(R.id.prioritySetter)).getSelectedItemPosition() + 1;
-                if (pr1 < pr2) {
-                    base.removeView(entry);
-                    base.addView(entry, i - 1);
-
-                    flag = true;
-                }
-            }
-        }
-    }
 
     void initEntry(LinearLayout newEnry, final LinearLayout base) {
         final EditText taskDescription = (EditText) newEnry.findViewById(R.id.taskDesctiption);
@@ -180,25 +160,11 @@ public class Main extends FragmentActivity {
             }
         });
 
-
-        final Spinner taskPrioritySetter = (Spinner) newEnry.findViewById(R.id.prioritySetter);
-        taskPrioritySetter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                pullMorePriorityTasksToTop(base);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
         CheckBox taskCompleteness = (CheckBox) newEnry.findViewById(R.id.taskCompleteness);
         taskCompleteness.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 taskDescription.setEnabled(!isChecked);
-                taskPrioritySetter.setEnabled(!isChecked);
             }
         });
 
@@ -217,15 +183,25 @@ public class Main extends FragmentActivity {
         inflater.inflate(R.menu.ctx_menu, menu);
 
         ctxSelectedView = v;
+
+
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+        Fragment fragment = pagerAdapter.getRegisteredFragment(weekTasks.getCurrentItem());
+        LinearLayout base = (LinearLayout) fragment.getView().findViewById(R.id.base);
         switch (item.getItemId()) {
             case R.id.deleteTask:
-                Fragment fragment = pagerAdapter.getRegisteredFragment(weekTasks.getCurrentItem());
-                LinearLayout base = (LinearLayout) fragment.getView().findViewById(R.id.base);
+
                 base.removeView(ctxSelectedView);
+                return true;
+            case R.id.setPriority:
+                View contentView = getLayoutInflater().inflate(R.layout.priority_setter_view, null);
+                Dialog prioritySettingDialog = new Dialog(this);
+                prioritySettingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                prioritySettingDialog.setContentView(contentView);
+                prioritySettingDialog.show();
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -245,13 +221,13 @@ public class Main extends FragmentActivity {
         Fragment fragment = pagerAdapter.getRegisteredFragment(weekTasks.getCurrentItem());
         final LinearLayout base = (LinearLayout) fragment.getView().findViewById(R.id.base);
         switch (item.getItemId()) {
-            case R.id.addTask:
+            case R.id.addTaskMenuItem:
                 LinearLayout newTask = (LinearLayout) getLayoutInflater().inflate(R.layout.entry, null);
                 initEntry(newTask, base);
                 base.addView(newTask);
                 return true;
 
-            case R.id.clearTaskList:
+            case R.id.clearTaskListMenuItem:
                 base.removeAllViews();
                 return true;
 

@@ -13,6 +13,12 @@
     <string name="clearTaskList">Clear list</string>
 
     <string name="deleteTask">Delete task</string>
+    <string name="settings">Settings</string>
+
+    <string name="setPriority">Set priority</string>
+
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
 
     <string-array name="priority">
         <item>1</item>
